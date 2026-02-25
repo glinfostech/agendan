@@ -329,7 +329,8 @@ function renderReportTable(startDate, endDate) {
     );
 
     const taxaConversaoGeral = totals.visitasTotais > 0 ? (totals.alugados / totals.visitasTotais) * 100 : 0;
-    const taxaEfetivaGeral = totals.efetivas > 0 ? (totals.alugados / totals.efetivas) * 100 : 0;
+    const somaTaxasEfetivas = rankingRows.reduce((acc, row) => acc + Number(row.taxaEfetiva || 0), 0);
+    const taxaEfetivaGeral = rankingRows.length > 0 ? (somaTaxasEfetivas / rankingRows.length) : 0;
 
     let html = `
     <div class="ranking-dark-wrapper">
