@@ -433,7 +433,7 @@ body.theme-dark .grid-slot:hover {
 }
 
 /* Conteúdo e Tabela */
-.report-results { flex: 1; overflow: hidden; background: #f1f5f9; padding: 0; display: flex; flex-direction: column; position: relative; }
+.report-results { flex: 1; min-height: 0; overflow: auto; background: #f1f5f9; padding: 0; display: flex; flex-direction: column; position: relative; }
 
 .placeholder-msg {
     display: flex; justify-content: center; align-items: center; height: 100%;
@@ -449,7 +449,7 @@ body.theme-dark .grid-slot:hover {
 .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--primary); line-height: 1.2; }
 .stat-label { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
 
-.report-table-container { flex: 1; overflow: auto; background: white; }
+.report-table-container { flex: 1; min-height: 0; max-height: 100%; overflow: auto; background: white; }
 .report-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
 .report-table th {
     background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase;
@@ -779,7 +779,7 @@ body:not(.theme-dark) .rank-empty {
 
 body:not(.theme-dark) .ranking-table-container {
     background: #ffffff !important;
-    max-height: calc(90vh - 290px);
+    max-height: clamp(260px, calc(100vh - 290px), 620px);
     overflow: auto;
 }
 
@@ -830,6 +830,18 @@ body.theme-dark .form-group label {
     border-color: var(--border) !important;
 }
 
+
+
+@media (max-height: 820px) {
+    .report-content {
+        height: 96vh;
+        max-height: none;
+    }
+
+    body:not(.theme-dark) .ranking-table-container {
+        max-height: none;
+    }
+}
 
 @media (max-width: 1366px) {
     .navbar { grid-template-columns: minmax(220px, 280px) minmax(200px, 1fr) minmax(220px, 320px); grid-template-areas: "brand search search" "date controls controls"; }
@@ -883,7 +895,7 @@ body.theme-dark .form-group label {
     .ranking-title { font-size: 0.95rem; padding: 12px; line-height: 1.3; }
     .ranking-subtitle { display: block; margin-top: 2px; }
     .ranking-table-container { max-height: none !important; overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
-    .report-table { font-size: 0.76rem; min-width: 640px; }
+    .report-table { font-size: 0.76rem; min-width: 560px; }
     .report-table th, .report-table td { padding: 7px 8px; }
 
     .footer-left, .modal-footer { width: 100%; }
@@ -907,7 +919,7 @@ body.theme-dark .form-group label {
         padding-left: 10px;
         padding-right: 10px;
     }
-    .report-table { min-width: 560px; }
+    .report-table { min-width: 520px; }
 }
 
 
