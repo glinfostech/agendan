@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Nunes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js">
+    <link rel="modulepreload" href="./config.js">
+    <link rel="modulepreload" href="./utils.js">
+    <link rel="modulepreload" href="./render.js">
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="login-card">
+            <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Agenda Nunes</h2>
+            <form id="login-form">
+                <div style="margin-bottom: 10px; text-align: left;"><label>Email</label><input type="email" id="login-email" class="form-control" placeholder="ex: consultora@imob.com" required></div>
+                <div style="margin-bottom: 20px; text-align: left;"><label>Senha</label><input type="password" id="login-password" class="form-control" placeholder="******" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
+            </form>
+            <p id="login-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 15px;"></p>
+        </div>
+    </div>
+    
+<div id="admin-crud-screen" class="hidden">
+    <header class="admin-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-user-shield" style="color: var(--primary); font-size: 1.5rem;"></i>
+            <h2>Gestão de Usuários</h2>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button id="btn-admin-back" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar para Agenda
+            </button>
+            <button id="btn-admin-logout" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <div class="admin-content">
+        <div class="admin-card">
+            <h3><i class="fas fa-user-plus"></i> Adicionar / Editar Usuário</h3>
+            <form id="admin-user-form" class="admin-form">
+                
+                <div class="form-group">
+                    <label for="crud-email">E-mail (Login)</label>
+                    <input type="email" id="crud-email" class="form-control" placeholder="ex: joao@empresa.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="crud-password">Senha</label>
+                    <input type="text" id="crud-password" class="form-control" placeholder="Defina uma senha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="crud-name">Nome</label> <input type="text" id="crud-name" class="form-control" placeholder="ex: João Silva" required>
+                </div>
+
+                <select id="crud-role" class="form-control" required>
+                    <option value="" style="color: pink" selected hidden>Função...</option>
+                    <option value="broker">Corretor</option>
+                    <option value="consultant">Consultora</option>
+                    <option value="admin">Admin</option>
+                    <option value="master">TI (Master)</option>
+                </select>
+                
+                <div class="form-group" id="phone-group" style="display: none;">
+                    <label for="crud-phone">Telefone</label>
+                    <input type="text" id="crud-phone" class="form-control" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="form-group">
+                    <label style="visibility: hidden;">Ação</label> <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Salvar Usuário
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="admin-card">
+            <h3><i class="fas fa-users"></i> Usuários Cadastrados</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Telefone</th>
+                            <th>Senha</th>
+                            <th>Função</th>
+                            <th style="text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crud-user-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <header id="main-navbar" class="navbar hidden">
+        <div class="brand-section">
+            <i class="fas fa-calendar-alt" style="font-size: 1.4rem;"></i>
+            <div class="brand-text-wrap">
+                <div class="brand-title">Agenda Nunes</div>
+            </div>
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="global-search" class="search-input" placeholder="Pesquisar..." autocomplete="off">
+            <div id="search-dropdown" class="search-dropdown"><div id="search-results-list"></div></div>
+        </div>
+        <div class="date-nav">
+            <button class="nav-btn" type="button" aria-label="Data anterior" onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
+            <span id="current-date-label">Hoje</span>
+            <button class="nav-btn" type="button" aria-label="Próxima data" onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="controls-section">
+            <select id="view-broker-select" class="form-control hidden" style="width: auto;" onchange="changeBrokerFilter()"></select>
+            <div class="view-switcher">
+                <button class="view-btn active" onclick="setView('day')" id="btn-day">Dia</button>
+                <button class="view-btn" onclick="setView('week')" id="btn-week">Semana</button>
+                <button class="view-btn" onclick="setView('month')" id="btn-month">Mês</button>
+            </div>
+            <button id="btn-admin-panel" class="btn btn-secondary btn-sm hidden" type="button">
+                <i class="fas fa-user-plus"></i> Cadastrar
+            </button>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div id="user-display" style="font-weight: 600;">Usuário</div>
+                    <div id="role-display" style="font-size: 0.7rem;">Cargo</div>
+                </div>
+                <div class="user-avatar" id="user-avatar-initial">U</div>
+                <button type="button" aria-label="Sair" onclick="window.logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main id="app-container" class="main-content hidden">
+        <div class="calendar-container" id="calendar-scroller">
+            <div id="schedule-grid" class="schedule-grid grid-day"></div>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div style="margin-bottom: 15px;">
+                <button onclick="closeModal()" class="btn-close-header">&times;</button>
+                <h3 id="modal-title" style="margin: 0;">Detalhes</h3>
+                <div id="creation-info-header" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; line-height: 1.4;"></div>
+            </div>
+
+            <div id="lock-warning"><i class="fas fa-lock"></i> Horário para edição encerrado.</div>
+
+            <form id="form-visit">
+                <input type="hidden" id="appt-id">
+                
+                <div class="info-row" style="align-items: center; justify-content: start; gap: 10px; margin-bottom: 15px;">
+                    <label style="min-width: 60px;">Corretor:</label>
+                    <select id="form-broker" class="form-control" style="width: auto; padding: 4px 8px;"></select>
+                </div>
+
+                <div id="div-event-type" class="hidden" style="background: #fff7ed; padding: 8px; border: 1px solid #ffedd5; border-radius: 6px; margin-bottom: 15px;">
+                    <label style="display: flex; align-items: center; gap: 8px; color: #9a3412; cursor: pointer; font-size: 0.9rem;">
+                        <input type="checkbox" id="form-is-event">
+                        É Evento/Aviso?
+                    </label>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Data</label>
+                        <div style="display: flex; align-items: center; height: 38px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0 10px; justify-content: space-between;">
+                            <input type="date" id="form-date" class="form-control" style="width: 100%; border: none; background: transparent; padding: 0;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Início</label>
+                        <select id="form-start" class="form-control" style="text-align: center;"></select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Fim</label>
+                        <select id="form-end" class="form-control" style="text-align: center;"></select>
+                    </div>
+                </div>
+
+                <div id="status-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                    <label for="form-status">Status</label>
+                    <select id="form-status" class="form-control">
+                            <option value="agendada">Agendada</option>
+                            <option value="realizada" style="font-weight:bold; color:green;">Realizada</option>
+                            <option value="cancelada" style="font-weight:bold; color:red;">Cancelada</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group hidden" id="div-status-rented" style="background: #f0fdf4; padding: 12px; border: 1px solid #dcfce7; border-radius: 6px; ">
+                <label style="display: flex; align-items: center; gap: 8px; color: #166534; cursor: pointer; font-size: 0.9rem; margin-bottom: 0;">
+                    <input type="checkbox" id="form-status-rented">
+                    <strong><i class="fas fa-key"></i> Imóvel foi alugado?</strong>
+                </label>
+            </div>
+                </div>
+
+                <div id="div-status-obs" class="form-group hidden" style="margin-bottom: 15px;">
+                    <label id="lbl-status-obs">Feedback / Observação</label>
+                    <textarea id="form-status-obs" class="form-control" rows="2"></textarea>
+                </div>
+                
+                <div id="visit-fields-container">
+                    <div class="section-divider">Clientes</div>
+                    <div id="clients-container"></div>
+                    <button type="button" id="btn-add-client" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-plus"></i> Cliente
+                    </button>
+
+                    <div class="section-divider">Detalhes do Imóvel</div>
+                    <div id="properties-container"></div>
+                    <button type="button" id="btn-add-property" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-plus"></i> Imóvel
+                    </button>
+
+                </div>
+
+                <div id="event-fields-container" class="hidden" style="margin-bottom: 15px;">
+                    <div class="section-divider">Detalhes do Evento</div>
+                    <label>Descrição</label>
+                    <textarea id="form-event-comment" class="form-control" rows="2"></textarea>
+                    
+                    <div id="recurrence-section" class="hidden" style="margin-top: 10px; border-top: 1px dashed #fdba74; padding-top: 10px;">
+                        <label style="color:#9a3412; display:block; margin-bottom:8px;"><i class="fas fa-sync-alt"></i> Repetição:</label>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div>
+                                <label style="font-size:0.8rem;">Repetir até:</label>
+                                <input type="date" id="recurrence-end-date" class="form-control" style="max-width: 150px;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.8rem;">Dias da semana:</label>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="1"> Seg</label>
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="2"> Ter</label>
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="3"> Qua</label>
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="4"> Qui</label>
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="5"> Sex</label>
+                                    <label class="week-day-check"><input type="checkbox" name="recurrence-day" value="6"> Sáb</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="share-section" class="hidden">
+                    <div class="section-divider" style="display:flex; align-items:center; justify-content:space-between;">
+                        <span id="share-section-title">Consultores Compartilhados</span>
+                        <button type="button" id="btn-select-all" class="btn btn-secondary btn-xs">Todas</button>
+                    </div>
+                    <div class="checkbox-group" id="share-checkboxes"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="footer-left">
+                        <button type="submit" id="btn-save" class="btn btn-primary">Salvar</button>
+                        <div id="whatsapp-buttons-container" style="display:inline-flex; gap:5px;"></div>
+                        <button type="button" id="btn-delete" class="btn btn-danger hidden">Excluir</button>
+                    </div>
+                    <button type="button" onclick="closeModal()" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+            
+            <div id="audit-log-container" class="hidden">
+                <strong style="display:block; margin-top:10px; margin-bottom:5px;"><i class="fas fa-history"></i> Histórico:</strong>
+                <div id="audit-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-dialog" class="custom-dialog-overlay hidden">
+      <div class="custom-dialog-box">
+        <h3 id="dialog-title">Título</h3>
+        <p id="dialog-text">Mensagem...</p>
+        <div id="dialog-actions" class="dialog-actions"></div>
+      </div>
+    </div>
+    <div id="toast-container"></div>
+
+    <div id="custom-confirm-modal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <div class="modal-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <h3 class="modal-title" id="confirm-title">Tem certeza?</h3>
+            <p class="modal-text" id="confirm-text">Essa ação não pode ser desfeita.</p>
+            <div class="modal-actions">
+                <button id="btn-modal-cancel" class="btn-cancel">Cancelar</button>
+                <button id="btn-modal-confirm" class="btn-confirm-danger">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="app.js"></script>
+    <script>
+        function closeModal() { document.getElementById('modal').classList.remove('open'); }
+        window.addEventListener('keydown', (e) => { 
+            if (e.key === 'Escape') { 
+                closeModal(); 
+                document.getElementById('search-dropdown').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

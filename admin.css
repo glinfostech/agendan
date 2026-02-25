@@ -1,0 +1,299 @@
+/* admin.css */
+:root {
+    --admin-bg: #f3f4f6;
+    --admin-card-bg: #ffffff;
+    --primary: #4f46e5; /* Indigo */
+    --primary-hover: #4338ca;
+    --danger: #ef4444;
+    --danger-hover: #dc2626;
+    --text-dark: #111827;
+    --text-gray: #6b7280;
+    --border: #e5e7eb;
+    --radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Container Principal */
+#admin-crud-screen {
+    background-color: var(--admin-bg);
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
+}
+
+/* Header */
+.admin-header {
+    background-color: var(--admin-card-bg);
+    padding: 1rem 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.btn-logout {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: var(--danger-hover);
+}
+
+/* Layout do Conteúdo */
+.admin-content {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    gap: 2rem;
+}
+
+/* Cards (Formulário e Tabela) */
+.admin-card {
+    background: var(--admin-card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.admin-card h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+}
+
+/* Formulário */
+.admin-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-gray);
+}
+
+.form-control {
+    padding: 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* DEPOIS (Aplica apenas em inputs, protegendo o select) */
+input.form-control:read-only {
+    background-color: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Garante que o Select sempre tenha cursor de mãozinha e fundo branco */
+select.form-control {
+    cursor: pointer;
+    background-color: #fff;
+}
+
+.btn-save {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    height: 42px; /* Alinha com os inputs */
+}
+
+.btn-save:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Tabela */
+.table-responsive {
+    max-height: 460px;
+    overflow: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.admin-table th {
+    background-color: #f9fafb;
+    color: var(--text-gray);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.admin-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dark);
+}
+
+.admin-table tr:hover {
+    background-color: #f9fafb;
+}
+
+/* Badges e Botões da Tabela */
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-admin { background: #e0e7ff; color: #4338ca; }
+.badge-master { background: #fee2e2; color: #b91c1c; }
+.badge-consultant { background: #dcfce7; color: #15803d; }
+.badge-broker { background: #fef3c7; color: #b45309; }
+
+.action-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    font-size: 1.1rem;
+}
+
+.action-btn.edit { color: var(--primary); }
+.action-btn.edit:hover { background: #e0e7ff; }
+
+.action-btn.delete { color: var(--danger); }
+.action-btn.delete:hover { background: #fee2e2; }
+
+/* Mobile */
+@media (max-width: 768px) {
+    .admin-form {
+        grid-template-columns: 1fr;
+    }
+    .btn-save {
+        width: 100%;
+    }
+}
+
+/* STYLE DE NOTIFAÇÃO / POPUP */
+
+#toast-container {
+    position: fixed;
+    top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.toast {
+    background: white; padding: 1rem 1.5rem;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-left: 5px solid #ccc; display: flex; align-items: center;
+    gap: 10px; min-width: 300px;
+    animation: slideIn 0.3s ease-out forwards; opacity: 1; /* Garante visibilidade */
+}
+.toast.success { border-left-color: #10b981; }
+.toast.error { border-left-color: #ef4444; }
+.toast.info { border-left-color: #3b82f6; }
+.toast i { font-size: 1.2rem; }
+.toast.success i { color: #10b981; }
+.toast.error i { color: #ef4444; }
+
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+/* --- MODAL DE CONFIRMAÇÃO --- */
+.custom-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 10000;
+    
+    /* SEGURANÇA EXTRA: Use visibility hidden além da opacidade */
+    opacity: 0;
+    visibility: hidden; 
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.custom-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.custom-modal {
+    background: white; padding: 2rem; border-radius: 12px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    transform: scale(0.9); transition: transform 0.2s; text-align: center;
+}
+.custom-modal-overlay.active .custom-modal { transform: scale(1); }
+.modal-icon { font-size: 3rem; color: #f59e0b; margin-bottom: 1rem; }
+.modal-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #111827; }
+.modal-text { color: #6b7280; margin-bottom: 1.5rem; }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
+.btn-cancel { background: #e5e7eb; color: #374151; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; }
+.btn-confirm-danger { background: #ef4444; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 500; }
+
+/* --- ESTILO DO SELECT (PLACEHOLDER) --- */
+
+/* Estado Padrão (Vazio/Placeholder) -> Cinza Apagado */
+#crud-role {
+    color: #9ca3af; /* Cinza claro */
+    transition: color 0.2s;
+}
+
+/* Estado Preenchido (Com classe .filled) -> Preto/Escuro */
+#crud-role.filled {
+    color: #111827; /* Preto suave */
+}
+
+/* Garante que as opções da lista sejam sempre legíveis (Pretas) */
+#crud-role option {
+    color: #111827;
+}
