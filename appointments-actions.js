@@ -175,12 +175,12 @@ export async function saveAppointmentAction(formData) {
         appointmentData.editedAt = null;
         if (!formData.isEvent) {
             const conflict = checkOverlap(appointmentData.brokerId, appointmentData.date, appointmentData.startTime, appointmentData.endTime, null, appointmentData.isEvent);
-            if (conflict) throw new Error(conflict);
+            if (conflict) throw new Error("Já existe um agendamento ativo neste horário para este corretor.");
         }
     } else {
         if (!formData.isEvent) {
             const conflict = checkOverlap(appointmentData.brokerId, appointmentData.date, appointmentData.startTime, appointmentData.endTime, id, appointmentData.isEvent);
-            if (conflict) throw new Error(conflict);
+            if (conflict) throw new Error("Já existe um agendamento ativo neste horário para este corretor.");
         }
     }
 

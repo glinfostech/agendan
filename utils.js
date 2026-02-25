@@ -65,18 +65,25 @@ export function getPropertyList(appt) {
 // --- LÓGICA DE NEGÓCIO E CONFLITOS ---
 
 export function checkOverlap(brokerId, dateStr, startStr, endStr, excludeId = null, isNewEvent = false) {
-    // Eventos (Avisos) não bloqueiam a agenda
+    // Eventos (Avisos) novos não bloqueiam agenda.
     if (isNewEvent) return false;
-  
+
     const newStart = toMinutes(startStr);
     const newEnd = toMinutes(endStr);
-    
+
     return state.appointments.some((appt) => {
       if (appt.id === excludeId) return false;
-      if (appt.isEvent) return false; // Ignora eventos existentes para fins de bloqueio
-  
+
+      const status = String(appt.status || "").trim().toLowerCase();
+      const isCanceled = status === "cancelada" || status === "cancelado";
+
+      // Eventos e cancelados ocupam meia coluna visualmente e não devem impedir
+      // a criação de um novo agendamento ao lado direito.
+      if (appt.isEvent || isCanceled) return false;
+
       if (appt.brokerId !== brokerId) return false;
       if (appt.date !== dateStr) return false;
+
       const existStart = toMinutes(appt.startTime);
       const existEnd = toMinutes(appt.endTime);
       return newStart < existEnd && newEnd > existStart;
