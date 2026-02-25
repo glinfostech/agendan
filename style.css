@@ -481,6 +481,66 @@ body.theme-dark .grid-slot:hover {
 .btn-page:hover:not(:disabled) { background: #f1f5f9; border-color: #94a3b8; }
 .btn-page:disabled { background: #f1f5f9; color: #cbd5e1; cursor: not-allowed; opacity: 0.7; }
 
+@media (max-width: 1180px) {
+    .report-content {
+        width: min(98vw, 1100px);
+        height: 94vh;
+    }
+
+    .report-header,
+    .report-filters,
+    .report-pagination {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .report-header {
+        height: auto;
+        min-height: 56px;
+        gap: 10px;
+    }
+
+    .report-header h2 {
+        min-width: 0;
+        font-size: 1rem;
+        line-height: 1.25;
+        flex-wrap: wrap;
+    }
+
+    .filters-grid {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 920px) {
+    .report-modal {
+        align-items: flex-start;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    .report-content {
+        width: 100%;
+        min-height: calc(100vh - 20px);
+        height: auto;
+        max-height: none;
+    }
+
+    .filters-grid {
+        grid-template-columns: repeat(2, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .stats-summary {
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        min-width: 140px;
+        flex: 1 1 140px;
+    }
+}
+
 /* Responsividade Mobile */
 @media (max-width: 768px) {
     .filters-grid { grid-template-columns: 1fr; } /* Empilha tudo no celular */
@@ -943,4 +1003,3 @@ body.theme-dark .search-input::placeholder {
     opacity: 1;
     filter: none;
 }
-
