@@ -296,11 +296,6 @@ export async function deleteAppointmentAction(appt) {
             deletedAt: new Date().toISOString(),
             deletedBy: state.userProfile?.email || "unknown"
         });
-        
-        // Popup de WhatsApp (se não for evento)
-        if (!appt.isEvent) {
-            await promptBrokerNotification("delete", appt, []);
-        }
 
         return true;
     } catch (err) {

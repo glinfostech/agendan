@@ -124,6 +124,8 @@ window.closeReportModal = closeReportModal;
 window.generateReport = generateReport;
 window.changeReportPage = changeReportPage;
 window.resetReportsState = resetReportsState;
+window.downloadReportPdf = downloadReportPdf;
+window.downloadReportExcel = downloadReportExcel;
 
 function openReportModal() {
     populateConsultants();
@@ -327,11 +329,18 @@ function renderReportTable(startDate, endDate) {
     );
 
     const taxaConversaoGeral = totals.visitasTotais > 0 ? (totals.alugados / totals.visitasTotais) * 100 : 0;
-    const taxaEfetivaGeral = totals.efetivas > 0 ? (totals.alugados / totals.efetivas) * 100 : 0;
+    const somaTaxasEfetivas = rankingRows.reduce((acc, row) => acc + Number(row.taxaEfetiva || 0), 0);
+    const taxaEfetivaGeral = rankingRows.length > 0 ? (somaTaxasEfetivas / rankingRows.length) : 0;
 
     let html = `
     <div class="ranking-dark-wrapper">
-        <div class="ranking-title">Ranking de Taxa de Conversão <span class="ranking-subtitle">(${formatPeriod(startDate, endDate)})</span></div>
+        <div class="ranking-title-row">
+            <div class="ranking-title">Ranking de Taxa de Conversão <span class="ranking-subtitle">(${formatPeriod(startDate, endDate)})</span></div>
+            <div class="report-export-actions">
+                <button type="button" class="btn-export-report" onclick="downloadReportPdf()"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button type="button" class="btn-export-report" onclick="downloadReportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+        </div>
         <div class="report-table-container ranking-table-container">
             <table class="report-table ranking-dark-table">
                 <thead>
@@ -386,6 +395,100 @@ function renderReportTable(startDate, endDate) {
     </div>`;
 
     container.innerHTML = html;
+}
+
+function getReportExportPayload() {
+    const wrapper = document.querySelector("#report-results-area .ranking-dark-wrapper");
+    const table = wrapper?.querySelector("table");
+    if (!wrapper || !table) return null;
+
+    const periodLabel = wrapper.querySelector(".ranking-subtitle")?.innerText || "";
+    const reportTitle = `Ranking de Taxa de Conversão ${periodLabel}`.trim();
+
+    return {
+        wrapper,
+        table,
+        reportTitle
+    };
+}
+
+function downloadReportPdf() {
+    const payload = getReportExportPayload();
+    if (!payload) return;
+
+    const { reportTitle, table } = payload;
+    const printWindow = window.open("", "_blank", "width=1200,height=850");
+    if (!printWindow) return;
+
+    const html = `
+    <html>
+    <head>
+      <title>${reportTitle}</title>
+      <meta charset="utf-8">
+      <style>
+        body { font-family: Arial, sans-serif; padding: 16px; color: #111827; }
+        h1 { margin: 0 0 14px; font-size: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid #d1d5db; padding: 8px 10px; text-align: left; }
+        th { background: #f1f5f9; }
+        tbody tr:nth-child(odd) { background: #ffffff; }
+        tbody tr:nth-child(even) { background: #f5f7fa; }
+        .th-right, .pct-col { text-align: right; }
+        .total-geral-row td { font-weight: 700; background: #eef2ff !important; }
+      </style>
+    </head>
+    <body>
+      <h1>${reportTitle}</h1>
+      ${table.outerHTML}
+      <script>window.onload = () => { window.print(); }<\/script>
+    </body>
+    </html>`;
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+}
+
+function downloadReportExcel() {
+    const payload = getReportExportPayload();
+    if (!payload) return;
+
+    const { reportTitle, table } = payload;
+    const safeName = reportTitle
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9_-]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "relatorio";
+
+    const excelHtml = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #d1d5db; padding: 8px 10px; }
+        th { background: #f1f5f9; font-weight: 700; }
+        tbody tr:nth-child(odd) { background: #ffffff; }
+        tbody tr:nth-child(even) { background: #f5f7fa; }
+        .th-right, .pct-col { text-align: right; }
+        .total-geral-row td { font-weight: 700; background: #eef2ff; }
+      </style>
+    </head>
+    <body>
+      <h3>${reportTitle}</h3>
+      ${table.outerHTML}
+    </body>
+    </html>`;
+
+    const blob = new Blob([excelHtml], { type: "application/vnd.ms-excel;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${safeName}.xls`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
 }
 
 function changeReportPage() {
