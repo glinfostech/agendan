@@ -341,8 +341,8 @@ body.theme-dark .grid-slot:hover {
 .custom-dialog-box.dialog-list-mode { text-align: left; padding-top: 36px; }
 .custom-dialog-box.dialog-list-mode #dialog-title { text-align: center; margin-bottom: 6px; }
 .custom-dialog-box.dialog-list-mode #dialog-text { text-align: center; }
-.custom-dialog-box.dialog-list-mode .dialog-actions { flex-direction: column; align-items: stretch; gap: 8px; max-height: 48vh; overflow-y: auto; padding-right: 2px; }
-.custom-dialog-box.dialog-list-mode .dialog-actions .btn-dialog { width: 100%; text-align: left; justify-content: flex-start; padding: 11px 12px; }
+.custom-dialog-box.dialog-list-mode .dialog-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; max-height: 48vh; overflow-y: auto; overflow-x: hidden; padding-right: 2px; }
+.custom-dialog-box.dialog-list-mode .dialog-actions .btn-dialog { width: 100%; max-width: 100%; text-align: left; justify-content: flex-start; white-space: normal; word-break: break-word; overflow-wrap: anywhere; padding: 11px 12px; }
 .btn-dialog { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
 .btn-dialog:hover { opacity: 0.9; }
 .btn-cancel { background: #e2e8f0; color: #475569; }
