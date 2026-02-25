@@ -274,6 +274,9 @@ body.theme-dark .grid-slot:hover {
 .event-card-style { background-color: #fff7ed !important; border-left: 5px solid #f97316 !important; border-top: 1px solid #ffedd5; color: #9a3412 !important; z-index: 4; }
 .my-star-icon { position: absolute; bottom: 2px; right: 2px; color: var(--primary); font-size: 0.65rem; }
 .shared-icon { position: absolute; top: 3px; right: 4px; font-size: 0.7rem; opacity: 0.8; }
+.canceled-appointment-card { border-left-color: #ef4444 !important; }
+.canceled-icon { color: #ef4444; margin-right: 6px; font-size: 0.72rem; vertical-align: middle; }
+.canceled-group-badge { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 999px; background: #fee2e2; color: #b91c1c; font-size: 0.68rem; font-weight: 700; vertical-align: middle; }
 
 /* ==========================================================================
    8. MODAL DE AGENDAMENTO (CRUD)
@@ -341,7 +344,7 @@ body.theme-dark .grid-slot:hover {
 .custom-dialog-box.dialog-list-mode { text-align: left; padding-top: 36px; }
 .custom-dialog-box.dialog-list-mode #dialog-title { text-align: center; margin-bottom: 6px; }
 .custom-dialog-box.dialog-list-mode #dialog-text { text-align: center; }
-.custom-dialog-box.dialog-list-mode .dialog-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; max-height: 48vh; overflow-y: auto; overflow-x: hidden; padding-right: 2px; }
+.custom-dialog-box.dialog-list-mode .dialog-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; max-height: 48vh; overflow-y: auto; overflow-x: hidden; padding-right: 2px; overflow-anchor: none; scroll-behavior: auto; }
 .custom-dialog-box.dialog-list-mode .dialog-actions .btn-dialog { width: 100%; max-width: 100%; text-align: left; justify-content: flex-start; white-space: normal; word-break: break-word; overflow-wrap: anywhere; padding: 11px 12px; }
 .btn-dialog { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
 .btn-dialog:hover { opacity: 0.9; }
