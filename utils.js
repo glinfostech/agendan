@@ -191,6 +191,8 @@ export function showDialog(title, message, buttons = [], options = {}) {
         }
 
         let resolved = false;
+        let resetIntervalId = null;
+
         const finish = (value) => {
             if (resolved) return;
             resolved = true;
@@ -199,6 +201,10 @@ export function showDialog(title, message, buttons = [], options = {}) {
             overlay.removeEventListener("click", onOverlayClick);
             document.removeEventListener("keydown", onEscape);
             window.removeEventListener("resize", onViewportChange);
+            if (resetIntervalId) {
+                clearInterval(resetIntervalId);
+                resetIntervalId = null;
+            }
             closeBtn?.removeEventListener("click", onCloseBtnClick);
             if (closeBtn) closeBtn.remove();
             resolve(value);
@@ -246,11 +252,11 @@ export function showDialog(title, message, buttons = [], options = {}) {
             actionsEl.scrollTop = 0;
             actionsEl.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-            // Alguns navegadores podem reposicionar a lista após reflow/zoom.
-            // Forçamos novamente para garantir que o primeiro cliente sempre apareça.
+            // Reforço extra para neutralizar ajustes automáticos de scroll
+            // causados por zoom, reflow e ancoragem de layout.
             const firstButton = actionsEl.querySelector(".btn-dialog");
             if (firstButton) {
-                firstButton.focus({ preventScroll: true });
+                firstButton.scrollIntoView({ block: "start", inline: "nearest" });
                 actionsEl.scrollTop = 0;
             }
         };
@@ -272,5 +278,18 @@ export function showDialog(title, message, buttons = [], options = {}) {
             requestAnimationFrame(resetDialogListScroll);
         });
         setTimeout(resetDialogListScroll, 0);
+        setTimeout(resetDialogListScroll, 80);
+        setTimeout(resetDialogListScroll, 180);
+
+        // Janela curta de reforço para cenários com zoom/resolução variáveis.
+        let attempts = 0;
+        resetIntervalId = setInterval(() => {
+            attempts += 1;
+            resetDialogListScroll();
+            if (attempts >= 12 || overlay.classList.contains("hidden")) {
+                clearInterval(resetIntervalId);
+                resetIntervalId = null;
+            }
+        }, 50);
     });
 }
