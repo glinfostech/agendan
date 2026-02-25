@@ -242,6 +242,12 @@ export function showDialog(title, message, buttons = [], options = {}) {
         const resetDialogListScroll = () => {
             actionsEl.scrollTop = 0;
             actionsEl.scrollLeft = 0;
+
+            // Garante que a lista sempre abra mostrando o primeiro cliente.
+            const firstButton = actionsEl.querySelector(".btn-dialog");
+            if (firstButton) {
+                firstButton.scrollIntoView({ block: "start" });
+            }
         };
 
         overlay.addEventListener("click", onOverlayClick);
