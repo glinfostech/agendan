@@ -650,6 +650,12 @@ body.theme-dark .grid-slot:hover {
 .rank-medal {
     font-size: 1.1em;
 }
+.ranking-title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 12px; }
+.report-export-actions { display: flex; gap: 8px; }
+.btn-export-report { border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; border-radius: 8px; padding: 8px 12px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn-export-report:hover { background: #f8fafc; }
+.ranking-dark-table tbody tr:nth-child(odd) { background: #ffffff; }
+.ranking-dark-table tbody tr:nth-child(even) { background: #f5f7fa; }
 .ranking-dark-table tfoot .total-geral-row td {
     position: sticky;
     bottom: 0;
@@ -762,6 +768,11 @@ body.theme-dark #dialog-text {
     color: var(--text-main) !important;
     border-color: var(--border) !important;
 }
+
+body.theme-dark .ranking-dark-table tbody tr:nth-child(odd) { background: #141414 !important; }
+body.theme-dark .ranking-dark-table tbody tr:nth-child(even) { background: #1b1b1b !important; }
+body.theme-dark .btn-export-report { background: #111827; color: #e2e8f0; border-color: #334155; }
+body.theme-dark .btn-export-report:hover { background: #1f2937; }
 
 .theme-toggle-btn {
     width: 38px;
@@ -939,6 +950,8 @@ body.theme-dark .form-group label {
         padding-right: 10px;
     }
     .report-table { min-width: 520px; }
+    .report-export-actions { width: 100%; }
+    .btn-export-report { flex: 1; justify-content: center; }
 }
 
 
