@@ -159,45 +159,83 @@ export function checkDateLock(dateStr) {
 
 // utils.js (Adicione ao final, mantendo as outras funções)
 
-export function showDialog(title, message, buttons = []) {
-  return new Promise((resolve) => {
-    const overlay = document.getElementById("custom-dialog");
-    const titleEl = document.getElementById("dialog-title");
-    const textEl = document.getElementById("dialog-text");
-    const actionsEl = document.getElementById("dialog-actions");
+export function showDialog(title, message, buttons = [], options = {}) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById("custom-dialog");
+        const box = overlay?.querySelector(".custom-dialog-box");
+        const titleEl = document.getElementById("dialog-title");
+        const textEl = document.getElementById("dialog-text");
+        const actionsEl = document.getElementById("dialog-actions");
 
-    titleEl.innerText = title;
-    textEl.innerText = message;
-    actionsEl.innerHTML = ""; // Limpa botões anteriores
+        if (!overlay || !box || !titleEl || !textEl || !actionsEl) {
+            resolve(null);
+            return;
+        }
 
-    // --- NOVO ESTILO: Força os botões a ficarem lado a lado ---
-    actionsEl.style.display = "flex";
-    actionsEl.style.flexDirection = "row";
-    actionsEl.style.justifyContent = "center"; // Centraliza os botões horizontalmente
-    actionsEl.style.gap = "15px"; // Espaçamento entre eles
-    actionsEl.style.marginTop = "20px";
+        const {
+            showClose = false,
+            closeValue = null,
+            listLayout = false,
+            closeOnOverlay = false,
+            closeOnEscape = true
+        } = options;
 
-    // Se nenhum botão for passado, cria um padrão "OK"
-    if (buttons.length === 0) {
-        buttons = [{ text: "OK", value: true, class: "btn-confirm" }];
-    }
+        titleEl.innerText = title;
+        textEl.innerText = message;
+        actionsEl.innerHTML = "";
 
-    buttons.forEach(btn => {
-        const button = document.createElement("button");
-        button.innerText = btn.text;
-        button.className = `btn-dialog ${btn.class || 'btn-confirm'}`;
-        
-        // Garante que ambos os botões tenham o mesmo tamanho e não quebrem a linha
-        button.style.margin = "0"; 
-        button.style.flex = "1"; 
-        
-        button.onclick = () => {
+        box.classList.toggle("dialog-list-mode", listLayout);
+
+        if (buttons.length === 0) {
+            buttons = [{ text: "OK", value: true, class: "btn-confirm" }];
+        }
+
+        let resolved = false;
+        const finish = (value) => {
+            if (resolved) return;
+            resolved = true;
             overlay.classList.add("hidden");
-            resolve(btn.value);
+            box.classList.remove("dialog-list-mode");
+            overlay.removeEventListener("click", onOverlayClick);
+            document.removeEventListener("keydown", onEscape);
+            closeBtn?.removeEventListener("click", onCloseBtnClick);
+            if (closeBtn) closeBtn.remove();
+            resolve(value);
         };
-        actionsEl.appendChild(button);
-    });
 
-    overlay.classList.remove("hidden");
-  });
+        const onOverlayClick = (event) => {
+            if (!closeOnOverlay) return;
+            if (event.target === overlay) finish(closeValue);
+        };
+
+        const onEscape = (event) => {
+            if (!closeOnEscape) return;
+            if (event.key === "Escape") finish(closeValue);
+        };
+
+        const closeBtn = showClose ? document.createElement("button") : null;
+        const onCloseBtnClick = () => finish(closeValue);
+
+        if (closeBtn) {
+            closeBtn.type = "button";
+            closeBtn.className = "dialog-close-btn";
+            closeBtn.setAttribute("aria-label", "Fechar");
+            closeBtn.innerHTML = "&times;";
+            box.appendChild(closeBtn);
+            closeBtn.addEventListener("click", onCloseBtnClick);
+        }
+
+        buttons.forEach((btn) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.innerText = btn.text;
+            button.className = `btn-dialog ${btn.class || "btn-confirm"}`;
+            button.onclick = () => finish(btn.value);
+            actionsEl.appendChild(button);
+        });
+
+        overlay.addEventListener("click", onOverlayClick);
+        document.addEventListener("keydown", onEscape);
+        overlay.classList.remove("hidden");
+    });
 }
