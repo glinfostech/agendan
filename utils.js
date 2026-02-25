@@ -239,11 +239,17 @@ export function showDialog(title, message, buttons = [], options = {}) {
             actionsEl.appendChild(button);
         });
 
-        actionsEl.scrollTop = 0;
-        actionsEl.scrollLeft = 0;
+        const resetDialogListScroll = () => {
+            actionsEl.scrollTop = 0;
+            actionsEl.scrollLeft = 0;
+        };
 
         overlay.addEventListener("click", onOverlayClick);
         document.addEventListener("keydown", onEscape);
         overlay.classList.remove("hidden");
+
+        resetDialogListScroll();
+        requestAnimationFrame(resetDialogListScroll);
+        setTimeout(resetDialogListScroll, 0);
     });
 }
