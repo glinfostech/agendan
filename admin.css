@@ -17,6 +17,8 @@
 #admin-crud-screen {
     background-color: var(--admin-bg);
     min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     color: var(--text-dark);
 }
@@ -148,8 +150,9 @@ select.form-control {
 
 /* Tabela */
 .table-responsive {
-    max-height: 460px;
-    overflow: auto;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
     border: 1px solid var(--border);
     border-radius: var(--radius);
 }
