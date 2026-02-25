@@ -345,6 +345,7 @@ body.theme-dark .grid-slot:hover {
 .custom-dialog-box.dialog-list-mode .dialog-actions .btn-dialog { width: 100%; max-width: 100%; text-align: left; justify-content: flex-start; white-space: normal; word-break: break-word; overflow-wrap: anywhere; padding: 11px 12px; }
 .btn-dialog { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
 .btn-dialog:hover { opacity: 0.9; }
+.btn-dialog:disabled, .btn-dialog.btn-disabled { opacity: 0.65; cursor: not-allowed; filter: grayscale(0.08); }
 .btn-cancel { background: #e2e8f0; color: #475569; }
 .btn-confirm { background: #3b82f6; color: white; }
 .btn-alt { background: #8b5cf6; color: white; }

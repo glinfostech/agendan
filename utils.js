@@ -230,7 +230,12 @@ export function showDialog(title, message, buttons = [], options = {}) {
             button.type = "button";
             button.innerText = btn.text;
             button.className = `btn-dialog ${btn.class || "btn-confirm"}`;
-            button.onclick = () => finish(btn.value);
+            if (btn.disabled) {
+                button.disabled = true;
+                button.classList.add("btn-disabled");
+            } else {
+                button.onclick = () => finish(btn.value);
+            }
             actionsEl.appendChild(button);
         });
 

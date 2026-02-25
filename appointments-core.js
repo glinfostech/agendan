@@ -79,25 +79,26 @@ export function createWhatsappButton(appt, brokerName, getClients = null) {
         const clientsSource = typeof getClients === "function" ? getClients() : getClientList(appt);
         const clients = Array.isArray(clientsSource) ? clientsSource : [];
 
-        const clientsWithPhone = clients
-            .map((c) => ({
-                name: String(c?.name || "Cliente").trim() || "Cliente",
-                phone: String(c?.phone || "").trim()
-            }))
-            .filter((c) => normalizePhone(c.phone));
+        const normalizedClients = clients.map((c) => {
+            const name = String(c?.name || "Cliente").trim() || "Cliente";
+            const phone = String(c?.phone || "").trim();
+            const hasPhone = !!normalizePhone(phone);
+            return { name, phone, hasPhone };
+        });
 
-        if (clientsWithPhone.length === 0) {
-            await showDialog("Aviso", "Nenhum telefone de cliente foi cadastrado neste agendamento.");
+        if (normalizedClients.length === 0) {
+            await showDialog("Aviso", "Nenhum cliente foi cadastrado neste agendamento.");
             return;
         }
 
         const selectedClient = await showDialog(
             "Escolher telefone do cliente",
             "Selecione um cliente deste agendamento para abrir o WhatsApp:",
-            clientsWithPhone.map((c) => ({
-                text: `${c.name} - ${c.phone}`,
+            normalizedClients.map((c) => ({
+                text: `${c.name} - ${c.hasPhone ? c.phone : "Sem telefone"}`,
                 value: c,
-                class: "btn-confirm"
+                class: c.hasPhone ? "btn-confirm" : "btn-cancel",
+                disabled: !c.hasPhone
             })),
             {
                 showClose: true,
