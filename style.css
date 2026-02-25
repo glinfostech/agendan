@@ -276,6 +276,7 @@ body.theme-dark .grid-slot:hover {
 .shared-icon { position: absolute; top: 3px; right: 4px; font-size: 0.7rem; opacity: 0.8; }
 .canceled-appointment-card { border-left-color: #ef4444 !important; }
 .canceled-icon { color: #ef4444; margin-right: 6px; font-size: 0.72rem; vertical-align: middle; }
+.canceled-group-badge { display: inline-block; margin-right: 6px; padding: 0 5px; border-radius: 999px; background: #fee2e2; color: #b91c1c; font-size: 0.68rem; font-weight: 700; vertical-align: middle; }
 
 /* ==========================================================================
    8. MODAL DE AGENDAMENTO (CRUD)

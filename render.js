@@ -1,5 +1,5 @@
 import { BROKERS, TIME_START, TIME_END, state } from "./config.js";
-import { isoDate, getRow, getStartOfWeek, getClientList, getPropertyList, checkTimeOverlap } from "./utils.js";
+import { isoDate, getRow, getStartOfWeek, getClientList, getPropertyList, checkTimeOverlap, showDialog } from "./utils.js";
 
 // --- PALETA DE CORES DINÂMICA (21 Cores Diferentes) ---
 const DYNAMIC_THEMES = [
@@ -33,6 +33,27 @@ function getBrokerTheme(brokerId) {
     let hash = 0;
     for (let i = 0; i < brokerId.length; i++) hash = brokerId.charCodeAt(i) + ((hash << 5) - hash);
     return DYNAMIC_THEMES[Math.abs(hash) % DYNAMIC_THEMES.length];
+}
+
+
+function isCanceledStatus(status) {
+  const normalized = String(status || "").trim().toLowerCase();
+  return normalized === "cancelada" || normalized === "cancelado";
+}
+
+function getCanceledSlotKey(appt) {
+  return `${appt.brokerId || ""}__${appt.date || ""}__${appt.startTime || ""}__${appt.endTime || ""}`;
+}
+
+function buildCanceledGroups(appts) {
+  const groups = new Map();
+  appts.forEach((appt) => {
+    if (!isCanceledStatus(appt.status)) return;
+    const key = getCanceledSlotKey(appt);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(appt);
+  });
+  return groups;
 }
 
 export function renderMain() {
@@ -126,6 +147,7 @@ function renderDayView(grid) {
   }
   
   const todaysAppts = state.appointments.filter((a) => a.date === dateStr);
+  const canceledGroups = buildCanceledGroups(todaysAppts);
   
   todaysAppts.forEach((appt) => {
       const bIdx = BROKERS.findIndex((b) => b.id === appt.brokerId);
@@ -135,10 +157,20 @@ function renderDayView(grid) {
           const span = getRow(appt.endTime) - getRow(appt.startTime);
           
           let styleConfig = { width: "100%", left: "0%" };
+          const renderMeta = {};
           
           // Verifica se é evento ou se está cancelado (para ocupar metade do tamanho)
-          const statusAppt = String(appt.status || "").toLowerCase();
-          const isApptHalfSize = appt.isEvent || statusAppt === "cancelada" || statusAppt === "cancelado";
+          const isApptHalfSize = appt.isEvent || isCanceledStatus(appt.status);
+
+          if (isCanceledStatus(appt.status)) {
+              const canceledItems = canceledGroups.get(getCanceledSlotKey(appt)) || [appt];
+              const primaryCanceledId = canceledItems[0]?.id;
+              if (appt.id !== primaryCanceledId) {
+                  return;
+              }
+              renderMeta.canceledGroupItems = canceledItems;
+              renderMeta.canceledGroupCount = canceledItems.length;
+          }
 
           if (isApptHalfSize) {
               styleConfig.width = "50%";
@@ -146,8 +178,7 @@ function renderDayView(grid) {
           } else {
               // Procura se existe algum agendamento que ocupe metade (evento/cancelado) no mesmo horário para empurrar este para a direita
               const conflictEvent = todaysAppts.find(other => {
-                  const statusOther = String(other.status || "").toLowerCase();
-                  const isOtherHalfSize = other.isEvent || statusOther === "cancelada" || statusOther === "cancelado";
+                  const isOtherHalfSize = other.isEvent || isCanceledStatus(other.status);
                   
                   return isOtherHalfSize && 
                          other.brokerId === appt.brokerId && 
@@ -159,7 +190,7 @@ function renderDayView(grid) {
                   styleConfig.left = "50%"; 
               }
           }
-          placeCard(grid, appt, col, rStart, span, styleConfig);
+          placeCard(grid, appt, col, rStart, span, styleConfig, renderMeta);
       }
   });
 }
@@ -224,6 +255,7 @@ function renderWeekView(grid) {
   const currentSelectedBroker = document.getElementById("view-broker-select")?.value || state.selectedBrokerId || "all";
   
   const weekAppts = state.appointments.filter((a) => (currentSelectedBroker === "all" || a.brokerId === currentSelectedBroker) && weekDays.includes(a.date));
+  const canceledGroups = buildCanceledGroups(weekAppts);
   
   weekAppts.forEach((appt) => {
       const dayIdx = weekDays.indexOf(appt.date);
@@ -233,10 +265,20 @@ function renderWeekView(grid) {
           const span = getRow(appt.endTime) - getRow(appt.startTime);
 
           let styleConfig = { width: "100%", left: "0%" };
+          const renderMeta = {};
           
           // Verifica se é evento ou se está cancelado (para ocupar metade do tamanho)
-          const statusAppt = String(appt.status || "").toLowerCase();
-          const isApptHalfSize = appt.isEvent || statusAppt === "cancelada" || statusAppt === "cancelado";
+          const isApptHalfSize = appt.isEvent || isCanceledStatus(appt.status);
+
+          if (isCanceledStatus(appt.status)) {
+              const canceledItems = canceledGroups.get(getCanceledSlotKey(appt)) || [appt];
+              const primaryCanceledId = canceledItems[0]?.id;
+              if (appt.id !== primaryCanceledId) {
+                  return;
+              }
+              renderMeta.canceledGroupItems = canceledItems;
+              renderMeta.canceledGroupCount = canceledItems.length;
+          }
 
           if (isApptHalfSize) {
               styleConfig.width = "50%";
@@ -244,8 +286,7 @@ function renderWeekView(grid) {
           } else {
               // Procura se existe algum agendamento que ocupe metade (evento/cancelado) no mesmo dia/horário
               const conflictEvent = weekAppts.find(other => {
-                  const statusOther = String(other.status || "").toLowerCase();
-                  const isOtherHalfSize = other.isEvent || statusOther === "cancelada" || statusOther === "cancelado";
+                  const isOtherHalfSize = other.isEvent || isCanceledStatus(other.status);
                   
                   return isOtherHalfSize && 
                          other.date === appt.date &&
@@ -257,7 +298,7 @@ function renderWeekView(grid) {
                   styleConfig.left = "50%";
               }
           }
-          placeCard(grid, appt, col, rStart, span, styleConfig);
+          placeCard(grid, appt, col, rStart, span, styleConfig, renderMeta);
       }
   });
 }
@@ -326,7 +367,7 @@ function createCell(cls, txt) {
     return d; 
 }
 
-function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
+function placeCard(grid, appt, col, rowStart, span, styleConfig = {}, renderMeta = {}) {
   const div = document.createElement("div");
   
   const hasShares = appt.sharedWith && appt.sharedWith.length > 0;
@@ -369,6 +410,8 @@ function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
   const textStyle = `overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; line-height: 1.2;`;
   const apptStatus = String(appt.status || "").trim().toLowerCase();
   const isCanceled = apptStatus === "cancelada" || apptStatus === "cancelado";
+  const canceledGroupItems = Array.isArray(renderMeta.canceledGroupItems) ? renderMeta.canceledGroupItems : [appt];
+  const canceledGroupCount = Number(renderMeta.canceledGroupCount || canceledGroupItems.length || 1);
 
   if (appt.isEvent) {
       div.classList.add("event-card-style");
@@ -397,9 +440,10 @@ function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
       
       let iconHtml = showSharedIcon ? `<i class="fas fa-users shared-icon" title="Compartilhado"></i> ` : "";
       const canceledIconHtml = isCanceled ? `<i class="fas fa-ban canceled-icon" title="Agendamento cancelado" aria-label="Agendamento cancelado"></i>` : "";
+      const canceledBadgeHtml = (isCanceled && canceledGroupCount > 1) ? `<span class="canceled-group-badge" title="Mais cancelados neste horário">+${canceledGroupCount - 1}</span>` : "";
       
       let html = "";
-      html += `<div style="${textStyle}">${canceledIconHtml}<strong>Cons:</strong> ${iconHtml}${appt.createdByName}</div>`;
+      html += `<div style="${textStyle}">${canceledIconHtml}${canceledBadgeHtml}<strong>Cons:</strong> ${iconHtml}${appt.createdByName}</div>`;
       
       const propertyList = getPropertyList(appt);
       const firstProperty = propertyList[0] || { reference: appt.reference || "", propertyAddress: appt.propertyAddress || "" };
@@ -431,6 +475,36 @@ function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
       div.prepend(contentDiv);
   }
 
-  div.onclick = (e) => { e.stopPropagation(); window.openModal(appt); };
+    div.onclick = async (e) => {
+      e.stopPropagation();
+
+      if (isCanceled && canceledGroupCount > 1) {
+          const selectedCanceled = await showDialog(
+              "Agendamentos cancelados",
+              "Escolha qual agendamento cancelado deseja abrir:",
+              canceledGroupItems.map((item, index) => {
+                  const clients = getClientList(item);
+                  const clientName = clients[0]?.name || "Sem cliente";
+                  return {
+                      text: `${index + 1}. ${clientName} • ${item.startTime}-${item.endTime}`,
+                      value: item,
+                      class: "btn-cancel"
+                  };
+              }),
+              {
+                  showClose: true,
+                  closeValue: null,
+                  listLayout: true,
+                  closeOnOverlay: true
+              }
+          );
+
+          if (!selectedCanceled) return;
+          window.openModal(selectedCanceled);
+          return;
+      }
+
+      window.openModal(appt);
+  };
   grid.appendChild(div);
 }

@@ -246,18 +246,27 @@ export async function saveAppointmentAction(formData) {
         // --- NOVO: LÓGICA DO POPUP DO WHATSAPP COM FILTRO (CORRIGIDO) ---
         // Se NÃO for um agendamento novo, NÃO for um evento, e houver mudanças:
         if (!isNew && !appointmentData.isEvent && detectedChanges && detectedChanges.length > 0) {
-            
-            // Lista de textos que NÃO devem acionar o aviso ao corretor
-            const ignorePrefixes = ["Status:", "Obs. Status:", "Imóvel Alugado:", "Partilhado com:"];
-            
-            // Filtra as mudanças, mantendo apenas as relevantes para o corretor
-            const notifyChanges = detectedChanges.filter(changeMsg => {
-                return !ignorePrefixes.some(prefix => changeMsg.startsWith(prefix));
-            });
+            const oldStatus = String(oldAppt?.status || "").trim().toLowerCase();
+            const newStatus = String(appointmentData?.status || "").trim().toLowerCase();
+            const becameCanceled =
+                (newStatus === "cancelada" || newStatus === "cancelado") &&
+                !(oldStatus === "cancelada" || oldStatus === "cancelado");
 
-            // Só abre a pergunta do WhatsApp se sobrou alguma mudança relevante
-            if (notifyChanges.length > 0) {
-                await promptBrokerNotification("edit", appointmentData, notifyChanges);
+            if (becameCanceled) {
+                await promptBrokerNotification("cancel", appointmentData, []);
+            } else {
+                // Lista de textos que NÃO devem acionar o aviso ao corretor
+                const ignorePrefixes = ["Status:", "Obs. Status:", "Imóvel Alugado:", "Partilhado com:"];
+
+                // Filtra as mudanças, mantendo apenas as relevantes para o corretor
+                const notifyChanges = detectedChanges.filter(changeMsg => {
+                    return !ignorePrefixes.some(prefix => changeMsg.startsWith(prefix));
+                });
+
+                // Só abre a pergunta do WhatsApp se sobrou alguma mudança relevante
+                if (notifyChanges.length > 0) {
+                    await promptBrokerNotification("edit", appointmentData, notifyChanges);
+                }
             }
         }
 
@@ -317,7 +326,7 @@ async function promptBrokerNotification(actionType, apptData, changes) {
     const apptDate = apptData.date.split('-').reverse().join('/');
     let msg = `Olá ${broker.name}, `;
     
-    if (actionType === "delete") {
+    if (actionType === "delete" || actionType === "cancel") {
         msg += `a visita do dia *${apptDate}* às *${apptData.startTime}* foi *CANCELADA/EXCLUÍDA* no sistema.\n\n`;
     } else {
         msg += `a visita do dia *${apptDate}* às *${apptData.startTime}* foi *ALTERADA* no sistema.\n\n`;
@@ -328,7 +337,7 @@ async function promptBrokerNotification(actionType, apptData, changes) {
     
     const userWantsToNotify = await showDialog(
         "Notificar Corretor?", 
-        `Deseja avisar o corretor ${broker.name} via WhatsApp sobre essa ${actionType === 'delete' ? 'exclusão' : 'alteração'}?`,
+        `Deseja avisar o corretor ${broker.name} via WhatsApp sobre essa ${actionType === 'delete' ? 'exclusão' : (actionType === 'cancel' ? 'cancelamento' : 'alteração')}?`,
         [
             { text: "Apenas salvar/excluir", value: false, class: "btn-secondary" },
             { text: "Sim, enviar WhatsApp", value: true, class: "btn-confirm" }
