@@ -91,20 +91,10 @@ export function createWhatsappButton(appt, brokerName, getClients = null) {
             return;
         }
 
-        const uniqueClients = [];
-        const seenPhones = new Set();
-        clientsWithPhone.forEach((c) => {
-            const phoneKey = normalizePhone(c.phone);
-            if (!seenPhones.has(phoneKey)) {
-                seenPhones.add(phoneKey);
-                uniqueClients.push(c);
-            }
-        });
-
         const selectedClient = await showDialog(
             "Escolher telefone do cliente",
             "Selecione um cliente deste agendamento para abrir o WhatsApp:",
-            uniqueClients.map((c) => ({
+            clientsWithPhone.map((c) => ({
                 text: `${c.name} - ${c.phone}`,
                 value: c,
                 class: "btn-confirm"
