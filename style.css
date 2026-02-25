@@ -644,14 +644,18 @@ body.theme-dark .grid-slot:hover {
 }
 
 @media (max-width: 1140px) and (max-height: 904px) {
-    .ranking-dark-table tfoot .total-geral-row td:nth-child(n + 3) {
-        display: none;
-    }
-
-    .ranking-dark-table tfoot .total-geral-row td:first-child,
-    .ranking-dark-table tfoot .total-geral-row td:nth-child(2) {
+    .ranking-dark-table tfoot .total-geral-row td {
+        font-size: 0.88rem;
+        padding: 8px 10px;
         white-space: nowrap;
     }
+
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(3)::before { content: "Total visitas: "; }
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(4)::before { content: "Total canceladas: "; }
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(5)::before { content: "Total realizadas: "; }
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(6)::before { content: "Total alugados: "; }
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(7)::before { content: "Taxa total conv.: "; }
+    .ranking-dark-table tfoot .total-geral-row td:nth-child(8)::before { content: "Taxa total efetiva: "; }
 }
 .rank-empty {
     text-align: center;
