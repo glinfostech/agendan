@@ -198,6 +198,7 @@ export function showDialog(title, message, buttons = [], options = {}) {
             box.classList.remove("dialog-list-mode");
             overlay.removeEventListener("click", onOverlayClick);
             document.removeEventListener("keydown", onEscape);
+            window.removeEventListener("resize", onViewportChange);
             closeBtn?.removeEventListener("click", onCloseBtnClick);
             if (closeBtn) closeBtn.remove();
             resolve(value);
@@ -240,22 +241,36 @@ export function showDialog(title, message, buttons = [], options = {}) {
         });
 
         const resetDialogListScroll = () => {
-            actionsEl.scrollTop = 0;
+            if (!listLayout) return;
             actionsEl.scrollLeft = 0;
+            actionsEl.scrollTop = 0;
+            actionsEl.scrollTo({ top: 0, left: 0, behavior: "auto" });
 
-            // Garante que a lista sempre abra mostrando o primeiro cliente.
+            // Alguns navegadores podem reposicionar a lista após reflow/zoom.
+            // Forçamos novamente para garantir que o primeiro cliente sempre apareça.
             const firstButton = actionsEl.querySelector(".btn-dialog");
             if (firstButton) {
-                firstButton.scrollIntoView({ block: "start" });
+                firstButton.focus({ preventScroll: true });
+                actionsEl.scrollTop = 0;
+            }
+        };
+
+        const onViewportChange = () => {
+            if (!overlay.classList.contains("hidden")) {
+                resetDialogListScroll();
             }
         };
 
         overlay.addEventListener("click", onOverlayClick);
         document.addEventListener("keydown", onEscape);
+        window.addEventListener("resize", onViewportChange);
         overlay.classList.remove("hidden");
 
         resetDialogListScroll();
-        requestAnimationFrame(resetDialogListScroll);
+        requestAnimationFrame(() => {
+            resetDialogListScroll();
+            requestAnimationFrame(resetDialogListScroll);
+        });
         setTimeout(resetDialogListScroll, 0);
     });
 }
