@@ -330,13 +330,22 @@ body.theme-dark .grid-slot:hover {
 /* ==========================================================================
    9. CAIXAS DE DIÁLOGO
    ========================================================================== */
-.custom-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999; }
-.custom-dialog-box { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 400px; width: 90%; text-align: center; animation: popIn 0.3s ease; }
+.custom-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 9999; padding: 12px; }
+.custom-dialog-box { position: relative; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 460px; width: min(460px, 100%); text-align: center; animation: popIn 0.3s ease; }
 #dialog-title { margin-top: 0; color: #1e293b; font-size: 1.25rem; }
-#dialog-text { color: #64748b; margin-bottom: 25px; line-height: 1.5; }
+#dialog-text { color: #64748b; margin-bottom: 18px; line-height: 1.5; }
 .dialog-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.dialog-actions .btn-dialog { margin: 0; }
+.dialog-close-btn { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border: none; border-radius: 999px; background: transparent; color: #64748b; font-size: 1.55rem; line-height: 1; cursor: pointer; }
+.dialog-close-btn:hover { background: #f1f5f9; color: #ef4444; }
+.custom-dialog-box.dialog-list-mode { text-align: left; padding-top: 36px; }
+.custom-dialog-box.dialog-list-mode #dialog-title { text-align: center; margin-bottom: 6px; }
+.custom-dialog-box.dialog-list-mode #dialog-text { text-align: center; }
+.custom-dialog-box.dialog-list-mode .dialog-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; max-height: 48vh; overflow-y: auto; overflow-x: hidden; padding-right: 2px; }
+.custom-dialog-box.dialog-list-mode .dialog-actions .btn-dialog { width: 100%; max-width: 100%; text-align: left; justify-content: flex-start; white-space: normal; word-break: break-word; overflow-wrap: anywhere; padding: 11px 12px; }
 .btn-dialog { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
 .btn-dialog:hover { opacity: 0.9; }
+.btn-dialog:disabled, .btn-dialog.btn-disabled { opacity: 0.65; cursor: not-allowed; filter: grayscale(0.08); }
 .btn-cancel { background: #e2e8f0; color: #475569; }
 .btn-confirm { background: #3b82f6; color: white; }
 .btn-alt { background: #8b5cf6; color: white; }

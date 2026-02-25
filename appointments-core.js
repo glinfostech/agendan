@@ -79,43 +79,33 @@ export function createWhatsappButton(appt, brokerName, getClients = null) {
         const clientsSource = typeof getClients === "function" ? getClients() : getClientList(appt);
         const clients = Array.isArray(clientsSource) ? clientsSource : [];
 
-        const clientsWithPhone = clients
-            .map((c) => ({
-                name: String(c?.name || "Cliente").trim() || "Cliente",
-                phone: String(c?.phone || "").trim()
-            }))
-            .filter((c) => normalizePhone(c.phone));
+        const normalizedClients = clients.map((c) => {
+            const name = String(c?.name || "Cliente").trim() || "Cliente";
+            const phone = String(c?.phone || "").trim();
+            const hasPhone = !!normalizePhone(phone);
+            return { name, phone, hasPhone };
+        });
 
-        if (clientsWithPhone.length === 0) {
-            await showDialog("Aviso", "Nenhum telefone de cliente foi cadastrado neste agendamento.");
+        if (normalizedClients.length === 0) {
+            await showDialog("Aviso", "Nenhum cliente foi cadastrado neste agendamento.");
             return;
         }
-
-        const uniqueClients = [];
-        const seenPhones = new Set();
-        clientsWithPhone.forEach((c) => {
-            const phoneKey = normalizePhone(c.phone);
-            if (!seenPhones.has(phoneKey)) {
-                seenPhones.add(phoneKey);
-                uniqueClients.push(c);
-            }
-        });
 
         const selectedClient = await showDialog(
             "Escolher telefone do cliente",
             "Selecione um cliente deste agendamento para abrir o WhatsApp:",
-            [
-                ...uniqueClients.map((c) => ({
-                    text: `${c.name} - ${c.phone}`,
-                    value: c,
-                    class: "btn-confirm"
-                })),
-                {
-                    text: "Sair",
-                    value: null,
-                    class: "btn-cancel"
-                }
-            ]
+            normalizedClients.map((c) => ({
+                text: `${c.name} - ${c.hasPhone ? c.phone : "Sem telefone"}`,
+                value: c,
+                class: c.hasPhone ? "btn-confirm" : "btn-cancel",
+                disabled: !c.hasPhone
+            })),
+            {
+                showClose: true,
+                closeValue: null,
+                listLayout: true,
+                closeOnOverlay: true
+            }
         );
 
         if (!selectedClient) return;
