@@ -818,9 +818,16 @@ body:not(.theme-dark) .ranking-dark-table {
 }
 
 body:not(.theme-dark) .ranking-dark-table thead tr,
-body:not(.theme-dark) .ranking-dark-table tbody tr,
 body:not(.theme-dark) .ranking-dark-table tfoot tr {
     background: #ffffff !important;
+}
+
+body:not(.theme-dark) .ranking-dark-table tbody tr:nth-child(odd) {
+    background: #ffffff !important;
+}
+
+body:not(.theme-dark) .ranking-dark-table tbody tr:nth-child(even) {
+    background: #f5f7fa !important;
 }
 
 body:not(.theme-dark) .ranking-dark-table th {
