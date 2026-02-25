@@ -877,12 +877,12 @@ body.theme-dark .form-group label {
     .checkbox-group { grid-template-columns: 1fr; }
 
     .report-modal { padding: 0; }
-    .report-content { width: 100%; min-height: 100vh; border-radius: 0; border-left: none; border-right: none; }
-    .report-results { overflow: auto; }
+    .report-content { width: 100%; min-height: 100vh; height: auto; max-height: none; border-radius: 0; border-left: none; border-right: none; }
+    .report-results { overflow: visible; }
     .ranking-dark-wrapper { margin: 8px; }
     .ranking-title { font-size: 0.95rem; padding: 12px; line-height: 1.3; }
     .ranking-subtitle { display: block; margin-top: 2px; }
-    .ranking-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .ranking-table-container { max-height: none !important; overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
     .report-table { font-size: 0.76rem; min-width: 640px; }
     .report-table th, .report-table td { padding: 7px 8px; }
 
