@@ -367,6 +367,8 @@ function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
   if (styleConfig.left) div.style.left = styleConfig.left;
 
   const textStyle = `overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; line-height: 1.2;`;
+  const apptStatus = String(appt.status || "").trim().toLowerCase();
+  const isCanceled = apptStatus === "cancelada" || apptStatus === "cancelado";
 
   if (appt.isEvent) {
       div.classList.add("event-card-style");
@@ -388,11 +390,16 @@ function placeCard(grid, appt, col, rowStart, span, styleConfig = {}) {
       const contentDiv = document.createElement("div");
       contentDiv.style.flex = "1";
       contentDiv.style.overflow = "hidden";
+
+      if (isCanceled) {
+          div.classList.add("canceled-appointment-card");
+      }
       
       let iconHtml = showSharedIcon ? `<i class="fas fa-users shared-icon" title="Compartilhado"></i> ` : "";
+      const canceledIconHtml = isCanceled ? `<i class="fas fa-ban canceled-icon" title="Agendamento cancelado" aria-label="Agendamento cancelado"></i>` : "";
       
       let html = "";
-      html += `<div style="${textStyle}"><strong>Cons:</strong> ${iconHtml}${appt.createdByName}</div>`;
+      html += `<div style="${textStyle}">${canceledIconHtml}<strong>Cons:</strong> ${iconHtml}${appt.createdByName}</div>`;
       
       const propertyList = getPropertyList(appt);
       const firstProperty = propertyList[0] || { reference: appt.reference || "", propertyAddress: appt.propertyAddress || "" };

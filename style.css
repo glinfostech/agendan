@@ -274,6 +274,8 @@ body.theme-dark .grid-slot:hover {
 .event-card-style { background-color: #fff7ed !important; border-left: 5px solid #f97316 !important; border-top: 1px solid #ffedd5; color: #9a3412 !important; z-index: 4; }
 .my-star-icon { position: absolute; bottom: 2px; right: 2px; color: var(--primary); font-size: 0.65rem; }
 .shared-icon { position: absolute; top: 3px; right: 4px; font-size: 0.7rem; opacity: 0.8; }
+.canceled-appointment-card { border-left-color: #ef4444 !important; }
+.canceled-icon { color: #ef4444; margin-right: 6px; font-size: 0.72rem; vertical-align: middle; }
 
 /* ==========================================================================
    8. MODAL DE AGENDAMENTO (CRUD)
